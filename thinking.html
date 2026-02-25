@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thinking</title>
+
+
+  <style>
+    :root {
+      --bg: #061f79;
+      --fg: #ffffff;
+      --accent: #F27F00;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Georgia, "Times New Roman", serif;
+      box-sizing: border-box;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1600px;       /* broaden window to reduce wrapping */
+      padding: 32px 56px;      /* consistent left margin */
+      box-sizing: border-box;
+    }
+
+    .type {
+      font-size: clamp(28px, 4vw, 56px);
+      font-weight: 400;
+      line-height: 1.15;
+      text-align: left;
+    }
+
+    .line {
+      display: block;          /* ensures identical left edge per line */
+      white-space: nowrap;     /* prevent breaking within a line */
+    }
+
+    /* If the viewport is too small, allow wrapping rather than overflow */
+    @media (max-width: 820px) {
+      .line { white-space: normal; }
+    }
+
+    .line.emph {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.6ch;
+      margin-left: 0.1ch;
+      color: var(--fg) !important; /* keep cursor white even on emphasized lines */
+      transform: translateY(0.06em);
+      animation: blink 0.85s steps(1, end) infinite; /* always blink */
+    }
+
+    .cursor::after {
+      content: "|";
+    }
+
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cursor.blinking { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" aria-label="Animated typewriter text">
+    <div id="type" class="type" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    // --- Phrases ---
+    const phrase1 = "Reimagining workflows";
+    const phrase2 = "Agentifying processes";
+    const phrase3 = "AI, AI, AI, AI, AI, ...";
+
+    const final1 = "Thinking clearly about problems";
+    const final2 = "Understanding the technology";
+    const final3 = "Starting with intent, iterating with curiosity";
+
+    // Speeds (ms)
+    const typeDelay = 75;          // per character (baseline)
+    const typeDelayFinal = 95;     // slightly slower for the final section
+    const backspaceDelay = 28;     // per character (faster)
+
+    const pauseAfterType = 900;
+    const pauseAfterErase = 250;
+    const pauseAfterEraseLonger = pauseAfterErase + 1000; // 1s longer than usual
+
+    const typeRoot = document.getElementById("type");
+
+    const cursorEl = document.createElement("span");
+    cursorEl.className = "cursor";
+    cursorEl.setAttribute("aria-hidden", "true");
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    // Add a bit of human-like variability to typing speed.
+    function jitterMs(base, jitter = 0.35) {
+      const min = base * (1 - jitter);
+      const max = base * (1 + jitter);
+      return Math.max(10, Math.floor(min + Math.random() * (max - min)));
+    }
+
+    function createLine() {
+      const line = document.createElement("div");
+      line.className = "line";
+
+      const text = document.createElement("span");
+      text.className = "text";
+      line.appendChild(text);
+
+      // Put cursor at end of this line
+      line.appendChild(cursorEl);
+
+      typeRoot.appendChild(line);
+      return { line, text };
+    }
+
+    async function typeInto(textEl, str, delay) {
+      for (let i = 0; i < str.length; i++) {
+        textEl.textContent += str[i];
+        await sleep(jitterMs(delay));
+      }
+    }
+
+    async function eraseFrom(textEl, count) {
+      for (let i = 0; i < count; i++) {
+        textEl.textContent = textEl.textContent.slice(0, -1);
+        await sleep(jitterMs(backspaceDelay, 0.25));
+      }
+    }
+
+    async function run() {
+      // We keep everything on one line while cycling, then clear for the final section.
+      const { line: cycleLine, text: cycleText } = createLine();
+
+      await sleep(3000);
+	  await typeInto(cycleText, phrase1, typeDelay);
+      await sleep(pauseAfterType);
+      await eraseFrom(cycleText, phrase1.length);
+
+      await sleep(pauseAfterErase);
+      await typeInto(cycleText, phrase2, typeDelay);
+      await sleep(pauseAfterType);
+      await eraseFrom(cycleText, phrase2.length);
+
+      await sleep(pauseAfterErase);
+      await typeInto(cycleText, phrase3, typeDelay);
+      await sleep(pauseAfterType);
+      await eraseFrom(cycleText, phrase3.length);
+
+      await sleep(pauseAfterEraseLonger);
+
+      // Clear cycle line before final multi-line output.
+      typeRoot.innerHTML = "";
+
+      // Final line 1
+      const l1 = createLine();
+      await typeInto(l1.text, final1, typeDelayFinal);
+      await sleep(1000);
+      l1.line.classList.add("emph"); // bold + orange at the same time
+
+      // Final line 2 (start normal white)
+      const l2 = createLine();
+      await typeInto(l2.text, final2, typeDelayFinal);
+      await sleep(1000);
+      l2.line.classList.add("emph"); // bold + orange
+
+      // Final line 3 (start normal white)
+      const l3 = createLine();
+      await typeInto(l3.text, final3, typeDelayFinal);
+      await sleep(1000);
+      l3.line.classList.add("emph"); // bold + orange
+
+      // Cursor keeps blinking at the end.
+    }
+
+    
+
+    run();
+  </script>
+</body>
+</html>
