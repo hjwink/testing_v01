@@ -175,9 +175,10 @@
 
       // Final line 1
       const l1 = createLine();
+	  l1.line.classList.add("emph"); // bold + orange at the same time
       await typeInto(l1.text, final1, typeDelayFinal);
       await sleep(1000);
-      l1.line.classList.add("emph"); // bold + orange at the same time
+      
 
       // Final line 2 (start normal white)
       const l2 = createLine();
