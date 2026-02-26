@@ -10,7 +10,7 @@
     :root {
       --bg: #061f79;
       --fg: #ffffff;
-      --accent: #F27F00;
+      --accent: #f27f00;
     }
 
     html, body {
@@ -182,20 +182,18 @@
 
       // Final line 2 (start normal white)
       const l2 = createLine();
+      l2.line.classList.add("emph"); // bold + orange
       await typeInto(l2.text, final2, typeDelayFinal);
       await sleep(1000);
-      l2.line.classList.add("emph"); // bold + orange
-
+      
       // Final line 3 (start normal white)
       const l3 = createLine();
+	  l3.line.classList.add("emph"); // bold + orange
       await typeInto(l3.text, final3, typeDelayFinal);
       await sleep(1000);
-      l3.line.classList.add("emph"); // bold + orange
-
-      // Cursor keeps blinking at the end.
+      
     }
-
-    
+   
 
     run();
   </script>
